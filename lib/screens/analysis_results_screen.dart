@@ -1,12 +1,13 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../models/user.dart';
 import '../models/disease_tracking.dart';
-import '../models/analysis_result.dart';
 import '../services/ai_service.dart';
 import '../services/hive_storage_service.dart';
+import 'photo_plan_screen.dart';
 
 class AnalysisResultsScreen extends StatefulWidget {
   final DiseaseAnalysis analysis;
@@ -41,23 +42,9 @@ class _AnalysisResultsScreenState extends State<AnalysisResultsScreen> {
     });
 
     try {
-      final explanation = await _aiService.generateExplanation(
-        AnalysisResult(
-          id: widget.analysis.id,
-          imagePath: widget.analysis.imagePath,
-          diseaseType: widget.analysis.diseaseType,
-          stage: widget.analysis.stage,
-          confidence: widget.analysis.confidence,
-          riskScore: widget.analysis.riskScore,
-          description: widget.analysis.description,
-          symptoms: widget.analysis.symptoms,
-          recommendations: widget.analysis.recommendations,
-          urgency: _getUrgencyLevel(),
-          needsImmediateAttention: widget.analysis.riskScore > 0.8,
-          analyzedAt: widget.analysis.analyzedAt,
-          rawResponse: widget.analysis.aiResponse,
-        ),
-      );
+      // Convert the AI response map to a JSON string
+      final aiResponseString = jsonEncode(widget.analysis.aiResponse);
+      final explanation = await _aiService.generateExplanation(aiResponseString);
       
       if (!mounted) return;
       
@@ -72,13 +59,6 @@ class _AnalysisResultsScreenState extends State<AnalysisResultsScreen> {
         _isLoadingExplanation = false;
       });
     }
-  }
-
-  String _getUrgencyLevel() {
-    if (widget.analysis.riskScore >= 0.8) return 'critical';
-    if (widget.analysis.riskScore >= 0.6) return 'high';
-    if (widget.analysis.riskScore >= 0.4) return 'medium';
-    return 'low';
   }
 
   @override
@@ -417,9 +397,9 @@ class _AnalysisResultsScreenState extends State<AnalysisResultsScreen> {
           children: [
             Expanded(
               child: OutlinedButton.icon(
-                onPressed: _trackProgress,
-                icon: const Icon(Icons.timeline),
-                label: const Text('Track Progress'),
+                onPressed: _viewPhotoPlan,
+                icon: const Icon(Icons.schedule),
+                label: const Text('Photo Plan'),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
@@ -428,15 +408,27 @@ class _AnalysisResultsScreenState extends State<AnalysisResultsScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: OutlinedButton.icon(
-                onPressed: _shareResults,
-                icon: const Icon(Icons.share),
-                label: const Text('Share Results'),
+                onPressed: _trackProgress,
+                icon: const Icon(Icons.timeline),
+                label: const Text('Track Progress'),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
               ),
             ),
           ],
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            onPressed: _shareResults,
+            icon: const Icon(Icons.share),
+            label: const Text('Share Results'),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+            ),
+          ),
         ),
       ],
     );
@@ -477,6 +469,18 @@ class _AnalysisResultsScreenState extends State<AnalysisResultsScreen> {
             child: const Text('OK'),
           ),
         ],
+      ),
+    );
+  }
+
+  void _viewPhotoPlan() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PhotoPlanScreen(
+          analysis: widget.analysis,
+          user: widget.user,
+        ),
       ),
     );
   }

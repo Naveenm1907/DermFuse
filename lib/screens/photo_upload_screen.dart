@@ -321,6 +321,8 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
       return;
     }
 
+    if (!mounted) return;
+    
     setState(() {
       _isAnalyzing = true;
     });
@@ -375,6 +377,8 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
         );
       }
     } catch (e) {
+      if (!mounted) return;
+      
       setState(() {
         _isAnalyzing = false;
       });
