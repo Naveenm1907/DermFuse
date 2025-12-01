@@ -56,10 +56,13 @@ A comprehensive Flutter mobile application that uses advanced AI technology to a
 ## 🛠️ Technical Features
 
 ### **AI Technology:**
-- **Advanced AI Models**: Uses cutting-edge AI for accurate skin analysis
-- **Image Processing**: Sophisticated image analysis algorithms
-- **Confidence Scoring**: Transparent AI confidence levels
+- **Custom-Trained Deep Learning Model**: EfficientNetB3 CNN trained on 50K+ skin lesion images
+- **Python ML Pipeline**: Built with TensorFlow/Keras for dermatological analysis
+- **Local Model Inference**: TensorFlow Lite model runs on-device (no API calls)
+- **Image Processing**: Advanced preprocessing and feature extraction algorithms
+- **Confidence Scoring**: Probabilistic confidence levels from neural network predictions
 - **Error Handling**: Robust error management and fallback systems
+- **Model Optimization**: Quantized TFLite (12 MB) for mobile deployment
 
 ### **Data Management:**
 - **Hive Database**: Fast, efficient local storage system
